@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/list-sanity/static/css/main.b6eed730.css",
+    "main.js": "/list-sanity/static/js/main.5d3adcd4.js",
+    "static/js/453.53f2d902.chunk.js": "/list-sanity/static/js/453.53f2d902.chunk.js",
+    "index.html": "/list-sanity/index.html",
+    "main.b6eed730.css.map": "/list-sanity/static/css/main.b6eed730.css.map",
+    "main.5d3adcd4.js.map": "/list-sanity/static/js/main.5d3adcd4.js.map",
+    "453.53f2d902.chunk.js.map": "/list-sanity/static/js/453.53f2d902.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b6eed730.css",
+    "static/js/main.5d3adcd4.js"
+  ]
+}
