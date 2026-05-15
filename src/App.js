@@ -6,6 +6,7 @@ function App() {
 		const inputData = event.target.value
 		const shipmentItemQuantities = {}
 		let shipmentReport = ""
+		let reportSummary = ""
 		let shipmentArray = []
 		let toteArray = []
 
@@ -44,9 +45,7 @@ function App() {
 			})
 
 		if (Object.keys(shipmentItemQuantities).length !== 0) {
-			shipmentArray.push(
-				`${shipmentItemQuantities["total"]} items, ${Object.keys(shipmentItemQuantities).length - 1} orders`,
-			)
+			reportSummary = `${shipmentItemQuantities["total"]} items, ${Object.keys(shipmentItemQuantities).length - 1} orders`
 
 			for (const shipmentId in shipmentItemQuantities) {
 				const itemQuantity = shipmentItemQuantities[shipmentId]
@@ -72,20 +71,19 @@ function App() {
 		shipmentArray.sort(sortByStation)
 		toteArray.sort(sortByStation)
 
-		shipmentReport =
-			shipmentArray.length === 0 && toteArray.length === 0
-				? "No valid data processed. Please check your input and try again."
-				: null
+		const bothArraysEmpty = !shipmentArray.length && !toteArray.length
+		const shipmentArrayValid = shipmentArray && shipmentArray.length > 0
+		const toteArrayValid = toteArray && toteArray.length > 0
 
-		shipmentReport =
-			shipmentArray && shipmentArray.length > 0
-				? shipmentArray.join("\n")
-				: null
-
-		shipmentReport ??= toteArray.join("\n")
+		shipmentReport = bothArraysEmpty
+			? "No valid data processed. Please check your input and try again."
+			: shipmentArrayValid
+				? reportSummary + "\n" + shipmentArray.join("\n")
+				: toteArrayValid
+					? toteArray.join("\n")
+					: null
 
 		document.getElementById("dataOutput").value = shipmentReport
-		document.getElementById("copyButton").disabled = false
 	}
 
 	return (
@@ -94,20 +92,24 @@ function App() {
 			<p>Paste your data in the input field below:</p>
 
 			<div className="containerDiv">
-				<label htmlFor="dataInput">Input Data:</label>
-				<textarea
-					id="dataInput"
-					className="dataInput"
-					placeholder="Paste data here..."
-					onChange={handleInputChange}
-				></textarea>
-				<label htmlFor="dataOutput">Processed Data:</label>
-				<textarea
-					id="dataOutput"
-					className="dataOutput"
-					placeholder="Generated data will appear here..."
-					readOnly
-				></textarea>
+				<div className="inputDiv">
+					<label htmlFor="dataInput">Input Data:</label>
+					<textarea
+						id="dataInput"
+						className="dataInput"
+						placeholder="Paste data here..."
+						onChange={handleInputChange}
+					></textarea>
+				</div>
+				<div className="outputDiv">
+					<label htmlFor="dataOutput">Processed Data:</label>
+					<textarea
+						id="dataOutput"
+						className="dataOutput"
+						placeholder="Generated data will appear here..."
+						readOnly
+					></textarea>
+				</div>
 			</div>
 		</div>
 	)
