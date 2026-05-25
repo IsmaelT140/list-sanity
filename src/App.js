@@ -2,6 +2,14 @@ import React from "react"
 import "./App.css"
 
 function App() {
+	function sortByStation(a, b) {
+		const stationA = a.slice(-5).replace("_", "")
+		const stationB = b.slice(-5).replace("_", "")
+		if (stationA < stationB) return -1
+		if (stationA > stationB) return 1
+		return 0
+	}
+
 	function handleInputChange(event) {
 		const inputData = event.target.value
 		const shipmentItemQuantities = {}
@@ -10,15 +18,31 @@ function App() {
 		let shipmentArray = []
 		let toteArray = []
 
+		const regex = /(?=\s\d{5,}\s)/
+
+		const toteStationRegex = /(?=ts[A-Za-z0-9]*\s*cvM01_IND_\d{2}_\d{2})/
+
 		if (typeof inputData !== "string" || inputData.trim() === "") {
 			document.querySelector(".dataOutput").value =
 				"Please enter valid data in the input field to generate a report."
 			return null
 		}
 
-		inputData
-			.split("\n")
-			.map((line) => line.trim().split("\t"))
+		let lineArray =
+			inputData.split(regex).length > 1
+				? inputData.split(regex)
+				: inputData.split(toteStationRegex).length > 1
+					? inputData.split(toteStationRegex)
+					: null
+
+		if (!lineArray) {
+			document.querySelector(".dataOutput").value =
+				"Unable to process the input data. Please ensure it is in the correct format and try again."
+			return null
+		}
+
+		lineArray
+			.map((line) => line.trim().split(/[\n\t]+/))
 			.forEach((lineArray) => {
 				if (
 					lineArray.length === 2 &&
@@ -55,14 +79,6 @@ function App() {
 					)
 				}
 			}
-		}
-
-		function sortByStation(a, b) {
-			const stationA = a.slice(-5).replace("_", "")
-			const stationB = b.slice(-5).replace("_", "")
-			if (stationA < stationB) return -1
-			if (stationA > stationB) return 1
-			return 0
 		}
 
 		shipmentArray = [...new Set(shipmentArray)]
