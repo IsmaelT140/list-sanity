@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/list-sanity/static/css/main.4ac04082.css",
-    "main.js": "/list-sanity/static/js/main.36e9ac81.js",
+    "main.js": "/list-sanity/static/js/main.9091cdf2.js",
     "static/js/453.53f2d902.chunk.js": "/list-sanity/static/js/453.53f2d902.chunk.js",
     "index.html": "/list-sanity/index.html",
     "main.4ac04082.css.map": "/list-sanity/static/css/main.4ac04082.css.map",
-    "main.36e9ac81.js.map": "/list-sanity/static/js/main.36e9ac81.js.map",
+    "main.9091cdf2.js.map": "/list-sanity/static/js/main.9091cdf2.js.map",
     "453.53f2d902.chunk.js.map": "/list-sanity/static/js/453.53f2d902.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4ac04082.css",
-    "static/js/main.36e9ac81.js"
+    "static/js/main.9091cdf2.js"
   ]
 }
