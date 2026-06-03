@@ -10,62 +10,72 @@ function App() {
 		return 0
 	}
 
+	async function copyToClipboard() {
+		const copyValue = document
+			.getElementById("dataOutput")
+			.innerText.replace(/\n/g, "\r\n")
+		try {
+			await navigator.clipboard.writeText(copyValue)
+			document.getElementById("copyButton").innerText = "Copied!"
+			setTimeout(() => {
+				document.getElementById("copyButton").innerText = "Copy Data"
+			}, 2000)
+		} catch (err) {
+			console.error("Failed to copy data: ", err)
+		}
+	}
+
 	function handleInputChange(event) {
 		const inputData = event.target.value
 		const shipmentItemQuantities = {}
 		let shipmentReport = ""
 		let reportSummary = ""
 		let shipmentArray = []
-		let toteArray = []
 
-		const regex = /(?=\s\d{5,}\s)/
+		const regex = /(?<![\s\d])(?=\s+\d{5,}\s+)/
 
-		const toteStationRegex = /(?=ts[A-Za-z0-9]*\s*cvM01_IND_\d{2}_\d{2})/
+		const toteStationRegex = /ts[A-Za-z0-9]+\s+cvM01_IND_\d{2}_\d{2}/g
 
 		if (typeof inputData !== "string" || inputData.trim() === "") {
-			document.querySelector(".dataOutput").value =
+			document.querySelector("#dataOutput").innerHTML =
 				"Please enter valid data in the input field to generate a report."
 			return null
 		}
 
+		let toteArray = [...inputData.matchAll(toteStationRegex)].map((arr) => {
+			const [tote, station] = arr[0].split(/[\n\t]+/)
+			return `${tote}_${station.slice(-5)}`
+		})
+
 		let lineArray =
 			inputData.split(regex).length > 1
-				? inputData.split(regex)
-				: inputData.split(toteStationRegex).length > 1
-					? inputData.split(toteStationRegex)
-					: null
+				? inputData
+						.split(regex)
+						.map((line) => line.trim().split(/[\n\t]+/))
+				: null
 
 		if (!lineArray) {
-			document.querySelector(".dataOutput").value =
+			document.querySelector("#dataOutput").innerHTML =
 				"Unable to process the input data. Please ensure it is in the correct format and try again."
 			return null
 		}
 
 		lineArray
-			.map((line) => line.trim().split(/[\n\t]+/))
-			.forEach((lineArray) => {
-				if (
-					lineArray.length === 2 &&
-					lineArray[0].startsWith("ts") &&
-					lineArray[1].startsWith("cvM01_IND_")
-				) {
-					toteArray.push(`${lineArray[0]}${lineArray[1].slice(-6)}`)
-				}
-
-				if (
+			.filter(
+				(lineArray) =>
 					lineArray.length > 2 &&
 					typeof Number(lineArray[0]) === "number" &&
-					typeof Number(lineArray[lineArray.length - 3]) === "number"
-				) {
-					const shipmentId = lineArray[0]
-					const itemQuantity = Number(lineArray[lineArray.length - 3])
+					typeof Number(lineArray[lineArray.length - 3]) === "number",
+			)
+			.forEach((lineArray) => {
+				const shipmentId = lineArray[0]
+				const itemQuantity = Number(lineArray[lineArray.length - 3])
 
-					shipmentItemQuantities[shipmentId] ??= 0
-					shipmentItemQuantities["total"] ??= 0
+				shipmentItemQuantities[shipmentId] ??= 0
+				shipmentItemQuantities["total"] ??= 0
 
-					shipmentItemQuantities[shipmentId] += itemQuantity
-					shipmentItemQuantities["total"] += itemQuantity
-				}
+				shipmentItemQuantities[shipmentId] += itemQuantity
+				shipmentItemQuantities["total"] += itemQuantity
 			})
 
 		if (Object.keys(shipmentItemQuantities).length !== 0) {
@@ -75,7 +85,7 @@ function App() {
 				const itemQuantity = shipmentItemQuantities[shipmentId]
 				if (shipmentId !== "total") {
 					shipmentArray.push(
-						`${shipmentId}, ${itemQuantity} item${itemQuantity > 1 ? "s" : ""}, `,
+						`<span><a href="https://rodeo-iad.amazon.com/DEN3/Search?searchKey=${shipmentId}">${shipmentId}</a>, ${itemQuantity} item${itemQuantity > 1 ? "s" : ""}, </span>`,
 					)
 				}
 			}
@@ -84,7 +94,6 @@ function App() {
 		shipmentArray = [...new Set(shipmentArray)]
 		toteArray = [...new Set(toteArray)]
 
-		shipmentArray.sort(sortByStation)
 		toteArray.sort(sortByStation)
 
 		const bothArraysEmpty = !shipmentArray.length && !toteArray.length
@@ -99,7 +108,7 @@ function App() {
 					? toteArray.join("\n")
 					: null
 
-		document.getElementById("dataOutput").value = shipmentReport
+		document.getElementById("dataOutput").innerHTML = shipmentReport
 	}
 
 	return (
@@ -118,13 +127,12 @@ function App() {
 					></textarea>
 				</div>
 				<div className="outputDiv">
-					<label htmlFor="dataOutput">Processed Data:</label>
-					<textarea
-						id="dataOutput"
-						className="dataOutput"
-						placeholder="Generated data will appear here..."
-						readOnly
-					></textarea>
+					<div id="dataOutput" className="dataOutput">
+						<h3>Generated data will appear here...</h3>
+					</div>
+					<button id="copyButton" onClick={copyToClipboard}>
+						Copy Data
+					</button>
 				</div>
 			</div>
 		</div>

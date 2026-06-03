@@ -16,7 +16,7 @@ html {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 50vh;
   width: 100vw;
 }
 
@@ -24,9 +24,19 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
   width: 50%;
   height: inherit;
+  border-radius: 2em;
+  background-color: rgb(70, 70, 70);
+  color: whitesmoke;
+}
+
+.inputDiv {
+  margin-right: 1vw;
+}
+.outputDiv {
+  margin-left: 1vw;
 }
 
 .dataInput, .dataOutput {
@@ -34,7 +44,23 @@ html {
   margin: 0 auto;
   width: 90%;
   height: 40vh;
-  font-size: 1.5rem;
+  font-size: 1rem;
+}
+
+#dataInput:focus, #dataOutput:focus {
+  outline: none;
+}
+
+#dataOutput {
+  width: 90%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  white-space: normal;
+  word-break: break-word;
+  overflow-y: scroll;
 }
 
 .App {
@@ -66,12 +92,6 @@ button {
   align-self: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -83,12 +103,17 @@ button {
   color: white;
 }
 
-.App-link {
+a {
   color: #61dafb;
+}
+a:hover {
+  color: #21a1f1;
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 1000px) {
   .containerDiv {
+    height: 90vh;
     flex-direction: column;
     justify-content: start;
   }
@@ -102,13 +127,13 @@ button {
     width: 90%;
     height: 100%;
   }
-}
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+  .inputDiv {
+    margin-right: 0;
+    margin-bottom: 1vh;
   }
-  to {
-    transform: rotate(360deg);
+  .outputDiv {
+    margin-top: 1vh;
+    margin-left: 0;
   }
 }
