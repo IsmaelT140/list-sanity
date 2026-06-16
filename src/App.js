@@ -1,6 +1,11 @@
 import React from "react"
 import "./App.css"
 
+const emptyInputMessage =
+	"Please enter valid data in the input field to generate a report."
+const invalidDataMessage =
+	"Unable to process the input data. Please ensure it is in the correct format and try again."
+
 function App() {
 	function sortByStation(a, b) {
 		const stationA = a.slice(-5).replace("_", "")
@@ -36,9 +41,11 @@ function App() {
 
 		const toteStationRegex = /ts[A-Za-z0-9]+\s+cvM01_IND_\d{2}_\d{2}/g
 
+		const reinductToteRegex = /tsRNDT\d\d/g
+		const pslvToteRegex = /tsAFE\dpslv\d/g
+
 		if (typeof inputData !== "string" || inputData.trim() === "") {
-			document.querySelector("#dataOutput").innerHTML =
-				"Please enter valid data in the input field to generate a report."
+			document.querySelector("#dataOutput").innerHTML = emptyInputMessage
 			return null
 		}
 
@@ -47,6 +54,19 @@ function App() {
 			return `${tote}_${station.slice(-5)}`
 		})
 
+		let reinductToteArray = [...inputData.matchAll(reinductToteRegex)]
+			.map((arr) => arr[0])
+			.sort()
+		let pslvToteArray = [...inputData.matchAll(pslvToteRegex)]
+			.map((arr) => arr[0])
+			.sort()
+
+		toteArray = toteArray.sort(sortByStation)
+
+		toteArray = [
+			...new Set([...pslvToteArray, ...reinductToteArray, ...toteArray]),
+		]
+
 		let lineArray =
 			inputData.split(regex).length > 1
 				? inputData
@@ -54,9 +74,18 @@ function App() {
 						.map((line) => line.trim().split(/[\n\t]+/))
 				: null
 
-		if (!lineArray) {
-			document.querySelector("#dataOutput").innerHTML =
-				"Unable to process the input data. Please ensure it is in the correct format and try again."
+		const bothArraysEmpty = !lineArray?.length && !toteArray?.length
+		const lineArrayValid = lineArray && lineArray?.length > 0
+		const toteArrayValid = toteArray && toteArray?.length > 0
+
+		if (!lineArrayValid && toteArrayValid) {
+			document.getElementById("dataOutput").innerHTML =
+				toteArray.join("<br/>")
+			return null
+		}
+
+		if (bothArraysEmpty) {
+			document.querySelector("#dataOutput").innerHTML = invalidDataMessage
 			return null
 		}
 
@@ -92,21 +121,12 @@ function App() {
 		}
 
 		shipmentArray = [...new Set(shipmentArray)]
-		toteArray = [...new Set(toteArray)]
 
-		toteArray.sort(sortByStation)
+		const shipmentArrayValid = shipmentArray && shipmentArray?.length > 0
 
-		const bothArraysEmpty = !shipmentArray.length && !toteArray.length
-		const shipmentArrayValid = shipmentArray && shipmentArray.length > 0
-		const toteArrayValid = toteArray && toteArray.length > 0
-
-		shipmentReport = bothArraysEmpty
-			? "No valid data processed. Please check your input and try again."
-			: shipmentArrayValid
-				? reportSummary + "\n" + shipmentArray.join("\n")
-				: toteArrayValid
-					? toteArray.join("\n")
-					: null
+		shipmentReport = shipmentArrayValid
+			? reportSummary + "\n" + shipmentArray.join("\n")
+			: invalidDataMessage
 
 		document.getElementById("dataOutput").innerHTML = shipmentReport
 	}
